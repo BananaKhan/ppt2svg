@@ -55,7 +55,7 @@ function execute(command) {
 
 function pdf2svg(input, output) {
   return new Promise((res, rej) => {
-    exec(`pdfinfo ${input} | grep Pages`, (err, stdout, stderr) => {
+    exec(`pdfinfo '${input}' | grep Pages`, (err, stdout, stderr) => {
       if (err) {
         rej(err);
       }
@@ -63,7 +63,7 @@ function pdf2svg(input, output) {
       if (stdout) {
         pdfLength = stdout.match(/Pages:\s+(\d+)/)[1];
       }
-      execute(`pdf2svg ${input} ${output}-%d.svg all`)
+      execute(`pdf2svg '${input}' '${output}-%d.svg' all`)
       .then((success) => {
         var sizePromises = [];
         if (optimize) {
@@ -99,7 +99,7 @@ function ppt2svg(config, callback) {
     if (config.optimizationFileSize) {
       OPT_FILE_SIZE = config.optimizationFileSize;
     }
-    execute(`unoconv -f pdf -o ${config.output}.pdf ${config.input}`)
+    execute(`unoconv -f pdf -o '${config.output}.pdf' '${config.input}'`)
     .then((res) => {
       return pdf2svg(`${config.output}.pdf`, config.output)
     })
