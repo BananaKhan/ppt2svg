@@ -1,0 +1,28 @@
+{
+  "name": "ppt2svg",
+  "version": "1.0.1",
+  "description": ".ppt[x] to .svg images converter",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BananaKhan/ppt2svg.git"
+  },
+  "keywords": [
+    "ppt",
+    "pptx",
+    "svg",
+    "converter"
+  ],
+  "author": "BananaKhan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BananaKhan/ppt2svg/issues"
+  },
+  "homepage": "https://github.com/BananaKhan/ppt2svg#readme",
+  "dependencies": {
+    "svgo": "^1.0.5"
+  }
+}
