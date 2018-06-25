@@ -99,15 +99,30 @@ function ppt2svg(config, callback) {
     if (config.optimizationFileSize) {
       OPT_FILE_SIZE = config.optimizationFileSize;
     }
-    execute(`unoconv -f pdf -o '${config.output}.pdf' '${config.input}'`)
-    .then((res) => {
-      return pdf2svg(`${config.output}.pdf`, config.output)
+    var promise = null;
+    if (config.pdf) {
+      promise = pdf2svg(`${config.input}`, config.output);
+    } else {
+      promise = execute(`unoconv -f pdf -o '${config.input}.pdf' '${config.input}'`)
+      .then((res) => {
+        return pdf2svg(`${config.input}.pdf`, config.output);
+      })
+      .then((presentationLength) => {
+        return new Promise((res, rej) => {
+          fs.unlink(`${config.input}.pdf`, function(err) {
+            if (err) {
+              rej(err);
+            } else {
+              res(presentationLength);
+            }
+          });
+        });
+      })
+    }
+    promise.then((presentationLength) => {
+      callback(null, presentationLength);
     })
-    .then((presentationLength) => {
-      fs.unlink(`${config.output}.pdf`, function(err) {
-        callback(err, presentationLength);
-      });
-    }).catch(e => callback(e));
+    promise.catch(e => callback(e));
   }
 }
 
