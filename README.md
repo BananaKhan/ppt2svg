@@ -4,7 +4,7 @@
 
   Debian/Ubuntu:
 
-  `sudo apt-get install unoconv libreoffice-dev pdfinfo pdf2svg`
+  `sudo apt-get install unoconv libreoffice-dev poppler-utils pdf2svg`
 
 
   `npm install ppt2svg`
