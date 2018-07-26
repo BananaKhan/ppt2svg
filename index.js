@@ -1,14 +1,14 @@
-var exec = require('child_process').exec;
-var fs = require('fs');
-var path = require('path');
-var SVGO = require('svgo');
-var svgo = new SVGO();
+const exec = require('child_process').exec;
+const fs = require('fs');
+const path = require('path');
+const SVGO = require('svgo');
+const svgo = new SVGO();
+const OPT_FILE_SIZE = 300 * 1024;
 
-var optimize = false;
-var OPT_FILE_SIZE = 300 * 1024;
+let optimize = false;
 
 function getFileSize(path) {
-  return new Promise(function (res, rej) {
+  return new Promise((res, rej) => {
     fs.stat(path, (err, stat) => {
       if (err) {
         rej(err);
@@ -20,14 +20,14 @@ function getFileSize(path) {
 }
 
 function optimizeSVG(path) {
-  return new Promise(function (res, rej) {
-    fs.readFile(path, 'utf8', function(err, data) {
+  return new Promise((res, rej) => {
+    fs.readFile(path, 'utf8', (err, data) => {
       if (err) {
         rej(err);
       }
       svgo.optimize(data, {path: path})
-      .then((d) => {
-        fs.writeFile(path, d.data, function(err) {
+      .then((optimizedData) => {
+        fs.writeFile(path, optimizedData.data, (err) => {
           if (err) {
             rej(err);
           }
@@ -39,8 +39,8 @@ function optimizeSVG(path) {
 }
 
 function execute(command) {
-  return new Promise(function (res, rej) {
-    exec(command, function (error, stdout, stderr) {
+  return new Promise((res, rej) => {
+    exec(command, (error, stdout, stderr) => {
       if (error) {
         rej(error);
       } else {
@@ -59,22 +59,22 @@ function pdf2svg(input, output) {
       if (err) {
         rej(err);
       }
-      var pdfLength = 0;
+      let pdfLength = 0;
       if (stdout) {
         pdfLength = stdout.match(/Pages:\s+(\d+)/)[1];
       }
       execute(`pdf2svg '${input}' '${output}-%d.svg' all`)
       .then((success) => {
-        var sizePromises = [];
+        let sizePromises = [];
         if (optimize) {
-          for (var i = 1; i <= pdfLength; i += 1) {
+          for (let i = 1; i <= pdfLength; i += 1) {
             sizePromises.push(getFileSize(`${output}-${i}.svg`));
           }
         }
         return Promise.all(sizePromises)
       })
       .then((sizes) => {
-        var SVGOptimizationPromises = [];
+        let SVGOptimizationPromises = [];
         if (optimize) {
           sizes.forEach((size, index) => {
             if (size > OPT_FILE_SIZE) {
@@ -84,7 +84,7 @@ function pdf2svg(input, output) {
         }
         return Promise.all(SVGOptimizationPromises);
       })
-      .then((d) => {
+      .then((sucess) => {
         res(pdfLength);
       }).catch(e => rej(e));
     });
@@ -93,37 +93,46 @@ function pdf2svg(input, output) {
 
 function ppt2svg(config, callback) {
   if (!config.input || !config.output) {
-    callback(new Error('Insufficient configuration'));
+    if (callback) {
+      callback(new Error('Insufficient configuration'));
+      return false;
+    }
+    return new Promise((res, rej) => {
+      rej(new Error('Insufficient configuration'));
+    });
+  }
+  optimize = !!config.optimize;
+  if (config.optimizationFileSize) {
+    OPT_FILE_SIZE = config.optimizationFileSize;
+  }
+  let promise = null;
+  if (config.pdf) {
+    promise = pdf2svg(`${config.input}`, config.output);
   } else {
-    optimize = !!config.optimize;
-    if (config.optimizationFileSize) {
-      OPT_FILE_SIZE = config.optimizationFileSize;
-    }
-    var promise = null;
-    if (config.pdf) {
-      promise = pdf2svg(`${config.input}`, config.output);
-    } else {
-      promise = execute(`unoconv -f pdf -o '${config.input}.pdf' '${config.input}'`)
-      .then((res) => {
-        return pdf2svg(`${config.input}.pdf`, config.output);
-      })
-      .then((presentationLength) => {
-        return new Promise((res, rej) => {
-          fs.unlink(`${config.input}.pdf`, function(err) {
-            if (err) {
-              rej(err);
-            } else {
-              res(presentationLength);
-            }
-          });
+    promise = execute(`unoconv -f pdf -o '${config.input}.pdf' '${config.input}'`)
+    .then((res) => {
+      return pdf2svg(`${config.input}.pdf`, config.output);
+    })
+    .then((presentationLength) => {
+      return new Promise((res, rej) => {
+        fs.unlink(`${config.input}.pdf`, function(err) {
+          if (err) {
+            rej(err);
+          } else {
+            res(presentationLength);
+          }
         });
-      })
-    }
+      });
+    })
+  }
+  if (callback) {
     promise.then((presentationLength) => {
       callback(null, presentationLength);
     })
-    promise.catch(e => callback(e));
+    .catch(e => callback(e));
+    return false;
   }
+  return promise;
 }
 
 module.exports = ppt2svg;

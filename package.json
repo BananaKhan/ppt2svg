@@ -1,7 +1,7 @@
 {
   "name": "ppt2svg",
-  "version": "1.1.1",
-  "description": ".ppt[x] to .svg images converter",
+  "version": "1.2.0",
+  "description": "ppt[x](or pdf) to svg converter",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,6 +13,7 @@
   "keywords": [
     "ppt",
     "pptx",
+    "pdf",
     "svg",
     "converter"
   ],

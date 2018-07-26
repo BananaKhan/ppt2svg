@@ -11,9 +11,9 @@
 
 ## Usage
 
-    var ppt2svg = require('ppt2svg');
+    const ppt2svg = require('ppt2svg');
 
-    var config = {
+    const config = {
       input: path to presentation file
       output: path where to put images, they will be named `${output}-${1 to presentationLength}.svg`
       optimize: [true|false] (default false, optional)
@@ -24,3 +24,13 @@
     ppt2svg(config, function callback(err, presentationLength) {
       // Handle callback
     });
+
+      or
+
+    ppt2svg(config)
+      .then(() => {
+        // Do something
+      })
+      .catch((err) => {
+        // Handle error
+      })
