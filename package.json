@@ -1,6 +1,6 @@
 {
   "name": "ppt2svg",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "ppt[x](or pdf) to svg converter",
   "main": "index.js",
   "scripts": {

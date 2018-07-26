@@ -21,14 +21,14 @@
       pdf: [true|false] (default false, optional) set true if input file is a pdf file
     }
 
-    ppt2svg(config, function callback(err, presentationLength) {
+    ppt2svg(config, (err, presentationLength) => {
       // Handle callback
     });
 
       or
 
     ppt2svg(config)
-      .then(() => {
+      .then((presentationLength) => {
         // Do something
       })
       .catch((err) => {
