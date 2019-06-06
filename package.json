@@ -1,6 +1,6 @@
 {
   "name": "ppt2svg",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "ppt[x](or pdf) to svg converter",
   "main": "index.js",
   "scripts": {
@@ -24,6 +24,6 @@
   },
   "homepage": "https://github.com/BananaKhan/ppt2svg#readme",
   "dependencies": {
-    "svgo": "^1.0.5"
+    "svgo": "^1.2.2"
   }
 }
