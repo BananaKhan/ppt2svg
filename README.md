@@ -1,4 +1,4 @@
-# ppt2svg
+# ppt2svg [![NPM version](https://badge.fury.io/js/ppt2svg.png)](http://badge.fury.io/js/ppt2svg)
 
 ## Installation
 
