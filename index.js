@@ -1,11 +1,11 @@
 const exec = require('child_process').exec;
 const fs = require('fs');
-const path = require('path');
 const SVGO = require('svgo');
 const svgo = new SVGO();
 const OPT_FILE_SIZE = 300 * 1024;
 
 let optimize = false;
+let optMinSize = OPT_FILE_SIZE;
 
 function getFileSize(path) {
   return new Promise((res, rej) => {
@@ -64,7 +64,7 @@ function pdf2svg(input, output) {
         pdfLength = stdout.match(/Pages:\s+(\d+)/)[1];
       }
       execute(`pdf2svg '${input}' '${output}-%d.svg' all`)
-      .then((success) => {
+      .then(() => {
         let sizePromises = [];
         if (optimize) {
           for (let i = 1; i <= pdfLength; i += 1) {
@@ -77,14 +77,14 @@ function pdf2svg(input, output) {
         let SVGOptimizationPromises = [];
         if (optimize) {
           sizes.forEach((size, index) => {
-            if (size > OPT_FILE_SIZE) {
+            if (size > optMinSize) {
               SVGOptimizationPromises.push(optimizeSVG(`${output}-${index + 1}.svg`));
             }
           });
         }
         return Promise.all(SVGOptimizationPromises);
       })
-      .then((sucess) => {
+      .then(() => {
         res(pdfLength);
       }).catch(e => rej(e));
     });
@@ -103,14 +103,14 @@ function ppt2svg(config, callback) {
   }
   optimize = !!config.optimize;
   if (config.optimizationFileSize) {
-    OPT_FILE_SIZE = config.optimizationFileSize;
+    optMinSize = config.optimizationFileSize;
   }
   let promise = null;
   if (config.pdf) {
     promise = pdf2svg(`${config.input}`, config.output);
   } else {
     promise = execute(`unoconv -f pdf -o '${config.input}.pdf' '${config.input}'`)
-    .then((res) => {
+    .then(() => {
       return pdf2svg(`${config.input}.pdf`, config.output);
     })
     .then((presentationLength) => {
